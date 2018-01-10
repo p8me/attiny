@@ -78,34 +78,58 @@ ISR(TIM1_OVF_vect){
 
 // 833, 290
 
+
+typedef const struct  
+{
+	uint16_t period; // in microseconds
+	float slope;
+	uint8_t duration;
+} tone_t;
+
+#define	MX		600
+#define MN		500
+#define DF		(MX-MN)
+
+#define SPACE	{0, 0, 5}
+#define VERT	{MN, SL(DF,1), 1}
+#define LOW		{MX, 0, 13}
+
+#define FALL	{MN, SL(DF,8), 8}
+#define RISE	{MX, SL(-DF,8), 8}
+
+tone_t tone1[] = {VERT, LOW, SPACE, FALL, RISE, SPACE};
+/*
 const uint16_t tone1[] = {			500,		600,		0,		500,		600,		0};
 const float tone1_slope[] = {		SL(100,1),	0,			0,		SL(100,8),	SL(-100,8),	0};
 const uint8_t tone1_duration[] = {	1,			13,			5,		8,			8,			10};
+*/
+
 const uint16_t tone2[] = {			700,		500,		0,		500,		800,		0};
-const float tone2_slope[] = {		SL(-400,2.),0,			0,		SL(400,12.),SL(-100,12.),0};
+const float tone2_slope[] = {		SL(-400,2),	0,			0,		SL(400,12),	SL(-100,12),0};
 const uint8_t tone2_duration[] = {	2,			20,			10,		12,			12,			10};
 
-
 uint16_t tone1_idx = 0, tone2_idx = 0, tone1_dur = 0, tone2_dur = 0;
+
+
 
 #define DL(TIME)  {_delay_ms(TIME*100);}
 
 void draw_sound_words(void){
 
 	if (tone1_dur == 0){
-		if (tone1_idx == sizeof(tone1)/sizeof(uint16_t))
+		if (tone1_idx == sizeof(tone1)/sizeof(tone1[0]))
 		{tone1_idx = 0; tone2_idx = 0; tone1_dur = 0; tone2_dur = 0;}
 		
-		if (tone1[tone1_idx]) {
-			Draw(0, tone1[tone1_idx], tone1_slope[tone1_idx]);
+		if (tone1[tone1_idx].period) {
+			Draw(0, tone1[tone1_idx].period, tone1[tone1_idx].slope);
 			start_tone(0);
 		}
 		else stop_tone(0);
-		tone1_dur = tone1_duration[tone1_idx] - 1;
+		tone1_dur = tone1[tone1_idx].duration - 1;
 		tone1_idx++;
 	}
 	else tone1_dur--;
-	return; // doesn't work for 2!
+	//return; // doesn't work for 2!
 	
 	if (tone2_dur == 0){
 		if (tone2_idx == sizeof(tone2)/sizeof(uint16_t))
