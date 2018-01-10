@@ -30,7 +30,7 @@ void wdt_event(void)
 	//{
 		//clr_pin(VIB_MOT);
 	//});
-	draw_sound_words();
+	process_draw_sound_words();
 }
 
 

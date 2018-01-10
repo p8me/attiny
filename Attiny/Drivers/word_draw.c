@@ -74,63 +74,81 @@ ISR(TIM1_OVF_vect){
 	tone_isr(1);
 }
 
-#define SL(diff,time)	(diff/time)/17000000.
+//====================== MID LEVEL =========================
 
-// 833, 290
+#define RES			3 // pixel-res = RES x RES
 
+#define VERT_TIME	1	// for one pixel
+#define HORZ_TIME	7	// for one pixel
 
-typedef const struct  
-{
-	uint16_t period; // in microseconds
-	float slope;
-	uint8_t duration;
-} tone_t;
+#define	MX			600 // bottom
+#define MN			500 // top
+#define DF			(MX-MN)
 
-#define	MX		600
-#define MN		500
-#define DF		(MX-MN)
+// send 0 0 to get a space
+void draw_coor(const uint8_t * point, uint16_t * period, float * slope, uint8_t * duration){
+	if (point[0] == 0 && point[1] == 0){
+		*period = 0;
+		*duration = RES * HORZ_TIME; // Silence
+	}
+	else{
+		uint8_t s_col = point[0]%RES;
+		uint8_t s_row = point[0]/RES;
+		uint8_t e_col = point[1]%RES;
+		uint8_t e_row = point[1]/RES;
+		if(s_col > e_col) {*duration = RES * HORZ_TIME; return; } // error
+		else{
+			if (s_col == e_col) *duration = VERT_TIME;
+			else				*duration = (e_col - s_col) * HORZ_TIME;
+			*period = MN + s_row * (DF/(RES-1));
+			*slope = (float)(e_row - s_row) / *duration / 17000000.;
+		}
+	}
+}
 
-#define SPACE	{0, 0, 5}
-#define VERT	{MN, SL(DF,1), 1}
-#define LOW		{MX, 0, 13}
+const uint8_t coords[] = {0,6, 6,8, 0,0, 0,7, 7,2, 0,0};
 
-#define FALL	{MN, SL(DF,8), 8}
-#define RISE	{MX, SL(-DF,8), 8}
+// Possible single speaker:
+// English: LUVNMWJHTY , hij
+// persian 2 6 7 8
+// greek: ? ? ?
 
-tone_t tone1[] = {VERT, LOW, SPACE, FALL, RISE, SPACE};
 /*
-const uint16_t tone1[] = {			500,		600,		0,		500,		600,		0};
-const float tone1_slope[] = {		SL(100,1),	0,			0,		SL(100,8),	SL(-100,8),	0};
-const uint8_t tone1_duration[] = {	1,			13,			5,		8,			8,			10};
+0 1 2 // MN	 \/
+3 4 5 // MD	 \/
+6 7 8 // MX	 \/
 */
 
-const uint16_t tone2[] = {			700,		500,		0,		500,		800,		0};
-const float tone2_slope[] = {		SL(-400,2),	0,			0,		SL(400,12),	SL(-100,12),0};
-const uint8_t tone2_duration[] = {	2,			20,			10,		12,			12,			10};
+struct  
+{
+	uint16_t idx;
+	uint16_t period;
+	float slope;
+	uint8_t duration;
+} state[2];
 
-uint16_t tone1_idx = 0, tone2_idx = 0, tone1_dur = 0, tone2_dur = 0;
 
+void process_draw_sound_words(void){
 
-
-#define DL(TIME)  {_delay_ms(TIME*100);}
-
-void draw_sound_words(void){
-
-	if (tone1_dur == 0){
-		if (tone1_idx == sizeof(tone1)/sizeof(tone1[0]))
-		{tone1_idx = 0; tone2_idx = 0; tone1_dur = 0; tone2_dur = 0;}
+	if (state[0].duration == 0){
+		if (state[0].idx == (sizeof(coords)/sizeof(coords[0])))
+		{state[0].idx = 0; state[0].duration = 0;}
 		
-		if (tone1[tone1_idx].period) {
-			Draw(0, tone1[tone1_idx].period, tone1[tone1_idx].slope);
+		draw_coor(&coords[state[0].idx], &state[0].period, &state[0].slope, &state[0].duration);
+		
+		if (state[0].period) {
+			Draw(0, state[0].period, state[0].slope);
 			start_tone(0);
 		}
 		else stop_tone(0);
-		tone1_dur = tone1[tone1_idx].duration - 1;
-		tone1_idx++;
+		
+		state[0].idx += 2;
 	}
-	else tone1_dur--;
+	else state[0].duration--;
+	
 	//return; // doesn't work for 2!
 	
+/*
 	if (tone2_dur == 0){
 		if (tone2_idx == sizeof(tone2)/sizeof(uint16_t))
 		{tone1_idx = 0; tone2_idx = 0; tone1_dur = 0; tone2_dur = 0;}
@@ -143,6 +161,7 @@ void draw_sound_words(void){
 		tone2_idx++;
 	}
 	else tone2_dur--;
+*/
 }
 
 #endif
