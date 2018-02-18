@@ -1,8 +1,8 @@
 /* avrdude arguments:
 >> attiny85:
- -C"C:\Program Files (x86)\Arduino\hardware\tools\avr/etc/avrdude.conf" -V -pattiny85 -cstk500v1 -PCOM6 -b1000000 -Uflash:w:"$(ProjectDir)Debug\$(TargetName).hex":i
+ -C"C:\Program Files (x86)\Arduino\hardware\tools\avr/etc/avrdude.conf" -V -pattiny85 -cstk500v1 -PCOM3 -b1000000 -Uflash:w:"$(ProjectDir)Debug\$(TargetName).hex":i
 >>  attiny13A:
- -C"C:\Program Files (x86)\Arduino\hardware\tools\avr/etc/avrdude.conf" -V -pattiny13 -cstk500v1 -PCOM6 -b1000000 -Uflash:w:"$(ProjectDir)Debug\$(TargetName).hex":i
+ -C"C:\Program Files (x86)\Arduino\hardware\tools\avr/etc/avrdude.conf" -V -pattiny13 -cstk500v1 -PCOM3 -b1000000 -Uflash:w:"$(ProjectDir)Debug\$(TargetName).hex":i
 
        (PCINT5/RESET/ADC0/dW) PB5 -|1 --\/-- 8|- VCC
 (PCINT3/XTAL1/CLKI/OC1B/ADC3) PB3 -|2        7|- PB2 (SCK/USCK/SCL/ADC1/T0/INT0/PCINT2)

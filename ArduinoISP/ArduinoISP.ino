@@ -432,7 +432,7 @@ void end_pmode() {
   pinMode(PIN_MOSI, INPUT);
   pinMode(PIN_SCK, INPUT);
   reset_target(false);
-  pinMode(RESET, INPUT);
+  pinMode(RESET, OUTPUT);
   digitalWrite(RESET, HIGH);
   pmode = 0;
 }
