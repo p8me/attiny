@@ -1,4 +1,7 @@
-/* avrdude arguments:
+/*
+avrdude path:
+	C:\Program Files (x86)\Arduino\hardware\tools\avr\bin\avrdude.exe
+avrdude arguments:
 >> attiny85:
  -C"C:\Program Files (x86)\Arduino\hardware\tools\avr/etc/avrdude.conf" -V -pattiny85 -cstk500v1 -PCOM3 -b1000000 -Uflash:w:"$(ProjectDir)Debug\$(TargetName).hex":i
 >>  attiny13A:
